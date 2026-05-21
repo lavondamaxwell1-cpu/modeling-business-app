@@ -1,1 +1,8 @@
-https://modeling-business-app.onrender.com
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
