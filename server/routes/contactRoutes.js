@@ -1,7 +1,7 @@
 import express from "express";
 import ContactMessage from "../models/ContactMessage.js";
 import adminProtect from "../middleware/adminProtect.js";
-
+import sendEmail from "../utils/sendEmail.js";
 const router = express.Router();
 
 // @route   POST /api/contact
@@ -25,7 +25,52 @@ router.post("/", async (req, res) => {
       subject,
       message,
     });
+try {
+  await sendEmail({
+    to: process.env.OWNER_EMAIL,
+    subject: "New QueensMen Contact Message",
+    html: `
+      <h2>New Contact Message</h2>
+      <p><strong>Name:</strong> ${contactMessage.fullName}</p>
+      <p><strong>Email:</strong> ${contactMessage.email}</p>
+      <p><strong>Phone:</strong> ${contactMessage.phone || "N/A"}</p>
+      <p><strong>Subject:</strong> ${contactMessage.subject || "N/A"}</p>
+      <p><strong>Message:</strong></p>
+      <p>${contactMessage.message}</p>
+    `,
+  });
+  
+} catch (emailError) {
+  console.error("Contact email failed:", emailError);
+}
+try {
+  await sendEmail({
+    to: contactMessage.email,
+    subject: "We received your message - The QueensMen",
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+        <h2>Thank you for contacting The QueensMen</h2>
 
+        <p>Hi ${contactMessage.fullName},</p>
+
+        <p>
+          We received your message and our team will review it soon.
+          Someone will follow up with you as soon as possible.
+        </p>
+
+        <p><strong>Your message:</strong></p>
+        <p>${contactMessage.message}</p>
+
+        <p style="margin-top: 24px;">
+          Thank you,<br />
+          <strong>The QueensMen Team</strong>
+        </p>
+      </div>
+    `,
+  });
+} catch (emailError) {
+  console.error("Contact confirmation email failed:", emailError);
+}
     res.status(201).json({
       success: true,
       message: "Contact message submitted successfully.",

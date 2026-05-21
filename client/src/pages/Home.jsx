@@ -7,6 +7,9 @@ export default function Home() {
   const [modelsLoading, setModelsLoading] = useState(true);
   const [modelsError, setModelsError] = useState("");
 
+  const [settings, setSettings] = useState(null);
+  const [settingsLoading, setSettingsLoading] = useState(true);
+
   useEffect(() => {
     let ignore = false;
 
@@ -40,6 +43,62 @@ export default function Home() {
     };
   }, []);
 
+  useEffect(() => {
+    let ignore = false;
+
+    const fetchSettings = async () => {
+      try {
+        setSettingsLoading(true);
+
+        const { data } = await API.get("/api/settings");
+
+        if (!ignore) {
+          setSettings(data.settings || null);
+        }
+      } catch (error) {
+        console.error("Fetch settings error:", error);
+
+        if (!ignore) {
+          setSettings(null);
+        }
+      } finally {
+        if (!ignore) {
+          setSettingsLoading(false);
+        }
+      }
+    };
+
+    fetchSettings();
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  const businessName = settings?.businessName || "The QueensMen";
+  const tagline = settings?.tagline || "Exclusive Professional Male Models";
+  const phone = settings?.phone || "(704) 555-1234";
+  const email = settings?.email || "info@thequeensmen.com";
+  const instagram = settings?.instagram || "";
+  const facebook = settings?.facebook || "";
+  const tiktok = settings?.tiktok || "";
+  const logo = settings?.logo || "";
+  const ownerPhoto = settings?.ownerPhoto || "";
+
+  const heroDescription =
+    settings?.heroDescription ||
+    "The Queensmen are a set of exclusive professional male models. They represent classy and vintage Gentle Men with a touch of boldness.";
+
+  const ownerTitle = settings?.ownerTitle || "The Vision Behind The QueensMen";
+
+  const ownerBio =
+    settings?.ownerBio ||
+    "The QueensMen was created to showcase exclusive professional male models who carry themselves with class, vintage style, confidence, and bold character.";
+
+  const ownerQuote =
+    settings?.ownerQuote ||
+    "Classy. Vintage. Bold. That is the standard of The QueensMen.";
+
   return (
     <main className="bg-black">
       {/* HERO SECTION */}
@@ -47,58 +106,105 @@ export default function Home() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_left,_rgba(185,28,28,0.35),_transparent_35%),radial-gradient(circle_at_right,_rgba(255,255,255,0.12),_transparent_30%)]" />
 
         <div className="relative mx-auto min-h-[82vh] max-w-7xl px-6 py-20">
+          {settingsLoading && (
+            <p className="mb-4 text-sm font-bold text-slate-400">
+              Loading business settings...
+            </p>
+          )}
+
           <div className="flex flex-col items-start gap-8 md:flex-row md:items-center">
-            <div className="flex h-36 w-36 shrink-0 items-center justify-center rounded-full border-2 border-red-700 bg-black shadow-2xl md:h-44 md:w-44">
-              <span className="text-5xl font-black text-red-600 md:text-6xl">
-                QM
-              </span>
+            <div className="flex h-44 w-28 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-2 border-red-700 bg-black p-2 shadow-2xl md:h-56 md:w-36">
+              {logo ? (
+                <img
+                  src={logo}
+                  alt={`${businessName} logo`}
+                  className="h-full w-full object-contain"
+                />
+              ) : (
+                <span className="text-4xl font-black text-red-600 md:text-5xl">
+                  QM
+                </span>
+              )}
             </div>
 
             <div>
               <p className="mb-3 font-bold uppercase tracking-[0.35em] text-red-600">
-                Exclusive Professional Male Models
+                {tagline}
               </p>
 
               <h1 className="text-6xl font-black leading-none md:text-8xl lg:text-9xl">
-                <span className="text-white">The </span>
-                <span className="text-red-700">Queens</span>
-                <span className="text-white">Men</span>
+                {businessName === "The QueensMen" ? (
+                  <>
+                    <span className="text-white">The </span>
+                    <span className="text-red-700">Queens</span>
+                    <span className="text-white">Men</span>
+                  </>
+                ) : (
+                  <span className="text-white">{businessName}</span>
+                )}
               </h1>
 
               <div className="mt-6 space-y-2 text-base font-semibold text-slate-200 md:text-lg">
                 <p>
                   Phone:{" "}
                   <a
-                    href="tel:7045551234"
+                    href={`tel:${phone.replace(/\D/g, "")}`}
                     className="text-white hover:text-red-500"
                   >
-                    (704) 555-1234
+                    {phone}
                   </a>
                 </p>
 
                 <p>
                   Email:{" "}
                   <a
-                    href="mailto:info@thequeensmen.com"
+                    href={`mailto:${email}`}
                     className="text-white hover:text-red-500"
                   >
-                    info@thequeensmen.com
+                    {email}
                   </a>
                 </p>
 
                 <p>
                   Social:{" "}
-                  <a href="#" className="text-white hover:text-red-500">
-                    Instagram
-                  </a>{" "}
+                  {instagram ? (
+                    <a
+                      href={instagram}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-white hover:text-red-500"
+                    >
+                      Instagram
+                    </a>
+                  ) : (
+                    <span className="text-slate-500">Instagram</span>
+                  )}{" "}
                   <span className="text-slate-500">|</span>{" "}
-                  <a href="#" className="text-white hover:text-red-500">
-                    Facebook
-                  </a>{" "}
+                  {facebook ? (
+                    <a
+                      href={facebook}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-white hover:text-red-500"
+                    >
+                      Facebook
+                    </a>
+                  ) : (
+                    <span className="text-slate-500">Facebook</span>
+                  )}{" "}
                   <span className="text-slate-500">|</span>{" "}
-                  <a href="#" className="text-white hover:text-red-500">
-                    TikTok
-                  </a>
+                  {tiktok ? (
+                    <a
+                      href={tiktok}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-white hover:text-red-500"
+                    >
+                      TikTok
+                    </a>
+                  ) : (
+                    <span className="text-slate-500">TikTok</span>
+                  )}
                 </p>
               </div>
             </div>
@@ -106,10 +212,7 @@ export default function Home() {
 
           <div className="mt-14 max-w-4xl rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur">
             <p className="text-2xl font-semibold leading-10 text-white md:text-3xl">
-              The Queensmen are a set of exclusive professional male models.
-              They represent classy and vintage{" "}
-              <span className="text-red-600">“Gentle Men”</span> with a touch of
-              boldness.
+              {heroDescription}
             </p>
 
             <div className="mt-8 flex flex-wrap gap-4">
@@ -135,11 +238,19 @@ export default function Home() {
       <section className="bg-white">
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-6 py-20 lg:grid-cols-2">
           <div className="overflow-hidden rounded-[2rem] bg-slate-100 shadow-xl">
-            <img
-              src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80"
-              alt="Owner of The QueensMen"
-              className="h-[520px] w-full object-cover"
-            />
+            {ownerPhoto ? (
+              <img
+                src={ownerPhoto}
+                alt={`Owner of ${businessName}`}
+                className="h-[520px] w-full object-contain bg-slate-100"
+              />
+            ) : (
+              <div className="flex h-[520px] items-center justify-center bg-slate-100">
+                <p className="font-bold text-slate-500">
+                  Owner photo not added yet
+                </p>
+              </div>
+            )}
           </div>
 
           <div>
@@ -148,24 +259,14 @@ export default function Home() {
             </p>
 
             <h2 className="mt-3 text-4xl font-black text-slate-950 md:text-5xl">
-              The Vision Behind The QueensMen
+              {ownerTitle}
             </h2>
 
-            <p className="mt-6 text-lg leading-8 text-slate-600">
-              The QueensMen was created to showcase exclusive professional male
-              models who carry themselves with class, vintage style, confidence,
-              and bold character.
-            </p>
-
-            <p className="mt-4 text-lg leading-8 text-slate-600">
-              Through this brand, the owner brings together polished talent for
-              events, fashion shows, brand campaigns, photoshoots, and luxury
-              experiences.
-            </p>
+            <p className="mt-6 text-lg leading-8 text-slate-600">{ownerBio}</p>
 
             <div className="mt-8 rounded-2xl border-l-4 border-red-700 bg-slate-50 p-6">
               <p className="text-lg font-semibold italic text-slate-700">
-                “Classy. Vintage. Bold. That is the standard of The QueensMen.”
+                “{ownerQuote}”
               </p>
             </div>
           </div>
@@ -230,7 +331,7 @@ export default function Home() {
                   <img
                     src={model.image}
                     alt={model.name}
-                    className="h-96 w-full object-cover transition duration-500 group-hover:scale-105"
+                    className="h-96 w-full object-contain bg-slate-100 transition duration-500 group-hover:scale-105"
                   />
                 ) : (
                   <div className="flex h-96 items-center justify-center bg-slate-900">

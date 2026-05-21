@@ -1,139 +1,177 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, NavLink } from "react-router-dom";
+import API from "../api/api";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [settings, setSettings] = useState(null);
 
-  const closeMenu = () => {
-    setMenuOpen(false);
-  };
+  useEffect(() => {
+    let ignore = false;
+
+    const fetchSettings = async () => {
+      try {
+        const { data } = await API.get("/api/settings");
+
+        if (!ignore) {
+          setSettings(data.settings || null);
+        }
+      } catch (error) {
+        console.error("Fetch navbar settings error:", error);
+
+        if (!ignore) {
+          setSettings(null);
+        }
+      }
+    };
+
+    fetchSettings();
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  const businessName = settings?.businessName || "The QueensMen";
+  const logo = settings?.logo || "";
+
+  const navLinkClass = ({ isActive }) =>
+    isActive ? "text-red-600" : "text-white hover:text-red-500";
 
   return (
     <header className="sticky top-0 z-50 border-b border-red-900/40 bg-black/95 text-white backdrop-blur">
-      <nav className="mx-auto max-w-7xl px-6 py-4">
-        <div className="flex items-center justify-between">
-          {/* LOGO / BRAND */}
-          <Link
-            to="/"
-            onClick={closeMenu}
-            className="text-xl font-black tracking-tight"
-          >
-            The <span className="text-red-700">Queens</span>Men
-          </Link>
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        {/* BRAND */}
+        <Link to="/" className="flex items-center gap-3">
+          {logo ? (
+            <div className="flex h-14 w-24 items-center justify-center overflow-hidden rounded-xl border border-red-800 bg-black p-1">
+              <img
+                src={logo}
+                alt={`${businessName} logo`}
+                className="h-full w-full object-contain"
+              />
+            </div>
+          ) : (
+            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-red-800 bg-black">
+              <span className="text-lg font-black text-red-600">QM</span>
+            </div>
+          )}
 
-          {/* DESKTOP LINKS */}
-          <div className="hidden items-center gap-6 text-sm font-semibold md:flex">
-            <Link to="/" className="hover:text-red-500">
-              Home
-            </Link>
-            <Link to="/about" className="hover:text-red-500">
-              About
-            </Link>
-            <Link to="/models" className="hover:text-red-500">
-              Models
-            </Link>
-            <Link to="/flyers" className="hover:text-red-500">
-              Flyers
-            </Link>
-            <Link to="/apply" className="hover:text-red-500">
-              Apply
-            </Link>
-            <Link to="/book" className="hover:text-red-500">
-              Book
-            </Link>
-            <Link to="/contact" className="hover:text-red-500">
-              Contact
-            </Link>
-          </div>
+          <span className="text-xl font-black">
+            {businessName === "The QueensMen" ? (
+              <>
+                The <span className="text-red-700">Queens</span>Men
+              </>
+            ) : (
+              businessName
+            )}
+          </span>
+        </Link>
 
-          {/* DESKTOP BUTTON */}
-          <Link
-            to="/book"
-            className="hidden rounded-full bg-red-700 px-5 py-2 text-sm font-bold text-white shadow hover:bg-red-800 md:inline-flex"
-          >
-            Book Models
-          </Link>
+        {/* DESKTOP NAV */}
+        <nav className="hidden items-center gap-6 text-sm font-bold md:flex">
+          <NavLink to="/" end className={navLinkClass}>
+            Home
+          </NavLink>
 
-          {/* MOBILE MENU BUTTON */}
-          <button
-            type="button"
-            onClick={() => setMenuOpen((prev) => !prev)}
-            className="rounded-lg border border-red-900/50 px-3 py-2 text-sm font-black text-white md:hidden"
-            aria-label="Toggle navigation menu"
-          >
-            {menuOpen ? "Close" : "Menu"}
-          </button>
-        </div>
+          <NavLink to="/about" className={navLinkClass}>
+            About
+          </NavLink>
 
-        {/* MOBILE MENU */}
-        {menuOpen && (
-          <div className="mt-4 grid gap-3 rounded-2xl border border-red-900/40 bg-black p-4 text-sm font-bold shadow-2xl md:hidden">
-            <Link
+          <NavLink to="/models" className={navLinkClass}>
+            Models
+          </NavLink>
+
+          <NavLink to="/flyers" className={navLinkClass}>
+            Flyers
+          </NavLink>
+
+          <NavLink to="/apply" className={navLinkClass}>
+            Apply
+          </NavLink>
+
+          <NavLink to="/book" className={navLinkClass}>
+            Book
+          </NavLink>
+
+          <NavLink to="/contact" className={navLinkClass}>
+            Contact
+          </NavLink>
+        </nav>
+
+        {/* MOBILE BUTTON */}
+        <button
+          type="button"
+          onClick={() => setMenuOpen((prev) => !prev)}
+          className="rounded-xl border border-white/20 px-4 py-2 text-sm font-bold text-white md:hidden"
+        >
+          {menuOpen ? "Close" : "Menu"}
+        </button>
+      </div>
+
+      {/* MOBILE NAV */}
+      {menuOpen && (
+        <nav className="border-t border-red-900/40 bg-black px-6 py-5 md:hidden">
+          <div className="grid gap-4 text-sm font-bold">
+            <NavLink
               to="/"
-              onClick={closeMenu}
-              className="rounded-xl px-4 py-3 hover:bg-red-700"
+              end
+              onClick={() => setMenuOpen(false)}
+              className={navLinkClass}
             >
               Home
-            </Link>
+            </NavLink>
 
-            <Link
+            <NavLink
               to="/about"
-              onClick={closeMenu}
-              className="rounded-xl px-4 py-3 hover:bg-red-700"
+              onClick={() => setMenuOpen(false)}
+              className={navLinkClass}
             >
               About
-            </Link>
+            </NavLink>
 
-            <Link
+            <NavLink
               to="/models"
-              onClick={closeMenu}
-              className="rounded-xl px-4 py-3 hover:bg-red-700"
+              onClick={() => setMenuOpen(false)}
+              className={navLinkClass}
             >
               Models
-            </Link>
+            </NavLink>
 
-            <Link
+            <NavLink
               to="/flyers"
-              onClick={closeMenu}
-              className="rounded-xl px-4 py-3 hover:bg-red-700"
+              onClick={() => setMenuOpen(false)}
+              className={navLinkClass}
             >
               Flyers
-            </Link>
+            </NavLink>
 
-            <Link
+            <NavLink
               to="/apply"
-              onClick={closeMenu}
-              className="rounded-xl px-4 py-3 hover:bg-red-700"
+              onClick={() => setMenuOpen(false)}
+              className={navLinkClass}
             >
               Apply
-            </Link>
+            </NavLink>
 
-            <Link
+            <NavLink
               to="/book"
-              onClick={closeMenu}
-              className="rounded-xl px-4 py-3 hover:bg-red-700"
+              onClick={() => setMenuOpen(false)}
+              className={navLinkClass}
             >
               Book
-            </Link>
+            </NavLink>
 
-            <Link
+            <NavLink
               to="/contact"
-              onClick={closeMenu}
-              className="rounded-xl px-4 py-3 hover:bg-red-700"
+              onClick={() => setMenuOpen(false)}
+              className={navLinkClass}
             >
               Contact
-            </Link>
-
-            <Link
-              to="/book"
-              onClick={closeMenu}
-              className="mt-2 rounded-full bg-red-700 px-5 py-3 text-center font-black text-white hover:bg-red-800"
-            >
-              Book Models
-            </Link>
+            </NavLink>
           </div>
-        )}
-      </nav>
+        </nav>
+      )}
     </header>
   );
 }

@@ -107,7 +107,7 @@ export default function ModelDetails() {
             <img
               src={model.image}
               alt={model.name}
-              className="h-[650px] w-full object-cover"
+              className="h-[520px] w-full object-contain bg-slate-100"
             />
           ) : (
             <div className="flex h-[650px] items-center justify-center bg-slate-900">
@@ -215,7 +215,7 @@ export default function ModelDetails() {
                   <img
                     src={image}
                     alt={`${model.name} portfolio ${index + 1}`}
-                    className="h-80 w-full object-cover"
+                    className="h-80 w-full object-contain bg-slate-100"
                   />
                 </div>
               ))}

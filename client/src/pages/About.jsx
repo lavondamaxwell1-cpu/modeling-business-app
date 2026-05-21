@@ -1,6 +1,54 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import API from "../api/api";
 
 export default function About() {
+  const [settings, setSettings] = useState(null);
+
+  useEffect(() => {
+    let ignore = false;
+
+    const fetchSettings = async () => {
+      try {
+        const { data } = await API.get("/api/settings");
+
+        if (!ignore) {
+          setSettings(data.settings || null);
+        }
+      } catch (error) {
+        console.error("Fetch about settings error:", error);
+
+        if (!ignore) {
+          setSettings(null);
+        }
+      }
+    };
+
+    fetchSettings();
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  const businessName = settings?.businessName || "The QueensMen";
+  const tagline = settings?.tagline || "Exclusive Professional Male Models";
+  const ownerPhoto = settings?.ownerPhoto || "";
+
+  const ownerTitle = settings?.ownerTitle || "The Vision Behind The QueensMen";
+
+  const ownerBio =
+    settings?.ownerBio ||
+    "The QueensMen was created to showcase exclusive professional male models who carry themselves with class, vintage style, confidence, and bold character.";
+
+  const ownerQuote =
+    settings?.ownerQuote ||
+    "Classy. Vintage. Bold. That is the standard of The QueensMen.";
+
+  const heroDescription =
+    settings?.heroDescription ||
+    "The Queensmen are a set of exclusive professional male models. They represent classy and vintage Gentle Men with a touch of boldness.";
+
   return (
     <main className="bg-black text-white">
       {/* HEADER */}
@@ -11,136 +59,132 @@ export default function About() {
           </p>
 
           <h1 className="mt-4 text-5xl font-black md:text-6xl">
-            The Standard of{" "}
-            <span className="text-red-700">Class, Style, and Boldness</span>
+            About{" "}
+            {businessName === "The QueensMen" ? (
+              <>
+                The <span className="text-red-700">Queens</span>Men
+              </>
+            ) : (
+              <span className="text-red-700">{businessName}</span>
+            )}
           </h1>
 
           <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-300">
-            The QueensMen is a professional male modeling brand built around
-            confidence, vintage gentleman energy, and a polished presence that
-            stands out in every room.
+            {tagline}
           </p>
         </div>
       </section>
 
       {/* BRAND STORY */}
-      <section className="mx-auto grid max-w-7xl items-center gap-10 px-6 py-20 lg:grid-cols-2">
-        <div className="overflow-hidden rounded-[2rem] border border-red-900/40 bg-white/5 shadow-2xl">
-          <img
-            src="https://images.unsplash.com/photo-1492447166138-50c3889fccb1?auto=format&fit=crop&w=1000&q=80"
-            alt="The QueensMen professional male models"
-            className="h-[540px] w-full object-cover"
-          />
-        </div>
-
-        <div>
-          <p className="font-bold uppercase tracking-[0.25em] text-red-600">
-            Our Story
-          </p>
-
-          <h2 className="mt-3 text-4xl font-black md:text-5xl">
-            More Than Models
-          </h2>
-
-          <p className="mt-6 text-lg leading-8 text-slate-300">
-            The QueensMen are a set of exclusive professional male models. They
-            represent classy and vintage “Gentle Men” with a touch of boldness.
-          </p>
-
-          <p className="mt-4 text-lg leading-8 text-slate-300">
-            The brand was created to showcase men who bring elegance,
-            professionalism, strength, and style to fashion shows, campaigns,
-            photoshoots, events, and luxury experiences.
-          </p>
-
-          <div className="mt-8 flex flex-wrap gap-4">
-            <Link
-              to="/models"
-              className="rounded-full bg-red-700 px-7 py-3 font-bold text-white shadow-lg hover:bg-red-800"
-            >
-              View Models
-            </Link>
-
-            <Link
-              to="/book"
-              className="rounded-full border border-white/40 px-7 py-3 font-bold text-white hover:bg-white hover:text-black"
-            >
-              Book The QueensMen
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* MISSION / VISION */}
       <section className="bg-white text-black">
-        <div className="mx-auto grid max-w-7xl gap-8 px-6 py-20 md:grid-cols-3">
-          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8 shadow-lg">
-            <h3 className="text-2xl font-black text-slate-950">Our Mission</h3>
-
-            <p className="mt-4 leading-7 text-slate-600">
-              To provide professional male models who bring class, confidence,
-              and high-quality presentation to every event, shoot, and brand
-              experience.
+        <div className="mx-auto grid max-w-7xl items-center gap-10 px-6 py-20 lg:grid-cols-2">
+          <div>
+            <p className="font-bold uppercase tracking-[0.25em] text-red-700">
+              Our Standard
             </p>
+
+            <h2 className="mt-3 text-4xl font-black text-slate-950 md:text-5xl">
+              Classy. Vintage. Bold.
+            </h2>
+
+            <p className="mt-6 text-lg leading-8 text-slate-600">
+              {heroDescription}
+            </p>
+
+            <p className="mt-4 text-lg leading-8 text-slate-600">
+              The brand was built to represent polished male talent with
+              confidence, professionalism, and timeless presentation for events,
+              fashion, media, and luxury experiences.
+            </p>
+
+            <div className="mt-8 rounded-2xl border-l-4 border-red-700 bg-slate-50 p-6">
+              <p className="text-lg font-semibold italic text-slate-700">
+                “{ownerQuote}”
+              </p>
+            </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8 shadow-lg">
-            <h3 className="text-2xl font-black text-slate-950">Our Vision</h3>
+          <div className="rounded-[2rem] border border-slate-200 bg-slate-100 p-6 shadow-xl">
+            <div className="grid gap-5">
+              <div className="rounded-2xl bg-white p-6 shadow">
+                <h3 className="text-2xl font-black text-slate-950">
+                  Professional Presence
+                </h3>
+                <p className="mt-3 leading-7 text-slate-600">
+                  Models who bring refined energy and polished style to every
+                  opportunity.
+                </p>
+              </div>
 
-            <p className="mt-4 leading-7 text-slate-600">
-              To become a recognized modeling brand known for vintage gentleman
-              style, bold energy, and unforgettable presentation.
-            </p>
-          </div>
+              <div className="rounded-2xl bg-white p-6 shadow">
+                <h3 className="text-2xl font-black text-slate-950">
+                  Event Ready
+                </h3>
+                <p className="mt-3 leading-7 text-slate-600">
+                  Available for fashion shows, photoshoots, campaigns,
+                  showcases, and upscale brand experiences.
+                </p>
+              </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8 shadow-lg">
-            <h3 className="text-2xl font-black text-slate-950">Our Standard</h3>
-
-            <p className="mt-4 leading-7 text-slate-600">
-              Every QueensMen model represents professionalism, discipline,
-              respect, confidence, and polished style.
-            </p>
+              <div className="rounded-2xl bg-white p-6 shadow">
+                <h3 className="text-2xl font-black text-slate-950">
+                  Bold Character
+                </h3>
+                <p className="mt-3 leading-7 text-slate-600">
+                  A brand identity centered around confidence, class, and
+                  memorable presentation.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* OWNER SECTION */}
-      <section className="bg-black">
+      <section className="bg-black text-white">
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-6 py-20 lg:grid-cols-2">
+          <div className="overflow-hidden rounded-[2rem] border border-red-900/40 bg-white/5 shadow-2xl">
+            {ownerPhoto ? (
+              <img
+                src={ownerPhoto}
+                alt={`Owner of ${businessName}`}
+                className="h-[520px] w-full bg-slate-100 object-contain"
+              />
+            ) : (
+              <div className="flex h-[520px] items-center justify-center bg-slate-900">
+                <p className="font-bold text-slate-400">
+                  Owner photo not added yet
+                </p>
+              </div>
+            )}
+          </div>
+
           <div>
             <p className="font-bold uppercase tracking-[0.25em] text-red-600">
-              Founder&apos;s Vision
+              Meet The Owner
             </p>
 
             <h2 className="mt-3 text-4xl font-black md:text-5xl">
-              Built With Purpose
+              {ownerTitle}
             </h2>
 
-            <p className="mt-6 text-lg leading-8 text-slate-300">
-              The owner’s vision is to create a space where male models can be
-              seen, respected, and represented with excellence. The QueensMen
-              brand is about more than appearance — it is about presence,
-              character, and professionalism.
-            </p>
+            <p className="mt-6 text-lg leading-8 text-slate-300">{ownerBio}</p>
 
-            <p className="mt-4 text-lg leading-8 text-slate-300">
-              From events to editorials, every model is expected to carry the
-              brand with class, vintage style, and bold confidence.
-            </p>
+            <div className="mt-8 flex flex-wrap gap-4">
+              <Link
+                to="/models"
+                className="rounded-full bg-red-700 px-7 py-3 font-black text-white shadow-lg hover:bg-red-800"
+              >
+                View Models
+              </Link>
 
-            <div className="mt-8 rounded-2xl border-l-4 border-red-700 bg-white/5 p-6">
-              <p className="text-lg font-semibold italic text-slate-200">
-                “Classy. Vintage. Bold. That is the standard of The QueensMen.”
-              </p>
+              <Link
+                to="/book"
+                className="rounded-full border border-white/40 px-7 py-3 font-black text-white hover:bg-white hover:text-black"
+              >
+                Book Talent
+              </Link>
             </div>
-          </div>
-
-          <div className="overflow-hidden rounded-[2rem] border border-red-900/40 bg-white/5 shadow-2xl">
-            <img
-              src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80"
-              alt="Owner of The QueensMen"
-              className="h-[540px] w-full object-cover"
-            />
           </div>
         </div>
       </section>
@@ -153,20 +197,20 @@ export default function About() {
           </p>
 
           <h2 className="mt-4 text-4xl font-black md:text-5xl">
-            Ready to bring The QueensMen to your next event?
+            Ready to connect with {businessName}?
           </h2>
 
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slate-300">
-            Book professional male models for fashion shows, photoshoots, brand
-            campaigns, luxury events, and special appearances.
+            Whether you are booking talent, applying to model, or asking about
+            events, The QueensMen is ready to connect.
           </p>
 
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Link
-              to="/book"
+              to="/apply"
               className="rounded-full bg-red-700 px-8 py-4 font-black text-white shadow-lg hover:bg-red-800"
             >
-              Book Models
+              Apply Now
             </Link>
 
             <Link

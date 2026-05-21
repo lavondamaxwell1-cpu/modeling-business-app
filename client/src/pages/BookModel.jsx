@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import API from "../api/api";
 
 export default function BookModel() {
@@ -18,7 +18,7 @@ export default function BookModel() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-
+  const [settings, setSettings] = useState(null);
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -27,7 +27,31 @@ export default function BookModel() {
       [name]: value,
     }));
   };
+  useEffect(() => {
+    let ignore = false;
 
+    const fetchSettings = async () => {
+      try {
+        const { data } = await API.get("/api/settings");
+
+        if (!ignore) {
+          setSettings(data.settings || null);
+        }
+      } catch (error) {
+        console.error("Fetch booking settings error:", error);
+
+        if (!ignore) {
+          setSettings(null);
+        }
+      }
+    };
+
+    fetchSettings();
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -63,7 +87,9 @@ export default function BookModel() {
       setLoading(false);
     }
   };
-
+  const businessName = settings?.businessName || "The QueensMen";
+  const phone = settings?.phone || "(704) 555-1234";
+  const email = settings?.email || "info@thequeensmen.com";
   return (
     <main className="bg-black text-white">
       {/* HEADER */}
@@ -89,40 +115,85 @@ export default function BookModel() {
       {/* CONTENT */}
       <section className="mx-auto grid max-w-7xl gap-10 px-6 py-16 lg:grid-cols-[1fr_1.4fr]">
         {/* SIDE INFO */}
-        <aside className="rounded-3xl border border-red-900/40 bg-white/5 p-8 shadow-2xl">
-          <h2 className="text-3xl font-black text-white">Booking Services</h2>
+        <aside className="grid gap-6">
+          <div className="rounded-3xl border border-red-900/40 bg-white/5 p-8 shadow-2xl">
+            <h2 className="text-3xl font-black text-white">Booking Services</h2>
 
-          <div className="mt-6 space-y-5 text-slate-300">
-            <div className="rounded-2xl border border-white/10 bg-black p-5">
-              <h3 className="font-black text-red-600">Fashion Shows</h3>
-              <p className="mt-2 text-sm leading-6">
-                Book models for runway events, showcases, and designer
-                presentations.
-              </p>
+            <div className="mt-6 space-y-5 text-slate-300">
+              <div className="rounded-2xl border border-white/10 bg-black p-5">
+                <h3 className="font-black text-red-600">Fashion Shows</h3>
+                <p className="mt-2 text-sm leading-6">
+                  Book models for runway events, showcases, and designer
+                  presentations.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-black p-5">
+                <h3 className="font-black text-red-600">Photoshoots</h3>
+                <p className="mt-2 text-sm leading-6">
+                  Hire talent for editorial shoots, brand visuals, campaigns,
+                  and creative projects.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-black p-5">
+                <h3 className="font-black text-red-600">Brand Events</h3>
+                <p className="mt-2 text-sm leading-6">
+                  Bring bold, classy presence to launches, mixers, promotions,
+                  and luxury experiences.
+                </p>
+              </div>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-black p-5">
-              <h3 className="font-black text-red-600">Photoshoots</h3>
-              <p className="mt-2 text-sm leading-6">
-                Hire talent for editorial shoots, brand visuals, campaigns, and
-                creative projects.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-white/10 bg-black p-5">
-              <h3 className="font-black text-red-600">Brand Events</h3>
-              <p className="mt-2 text-sm leading-6">
-                Bring bold, classy presence to launches, mixers, promotions, and
-                luxury experiences.
+            <div className="mt-8 rounded-2xl border-l-4 border-red-700 bg-black p-5">
+              <p className="text-sm leading-6 text-slate-300">
+                After the client submits this request, the owner can review the
+                details and follow up by email or phone.
               </p>
             </div>
           </div>
 
-          <div className="mt-8 rounded-2xl border-l-4 border-red-700 bg-black p-5">
-            <p className="text-sm leading-6 text-slate-300">
-              After the client submits this request, the owner can review the
-              details and follow up by email or phone.
+          <div className="rounded-3xl border border-red-900/40 bg-white p-6 text-black shadow-2xl">
+            <p className="font-bold uppercase tracking-[0.25em] text-red-700">
+              Booking Info
             </p>
+
+            <h2 className="mt-3 text-3xl font-black text-slate-950">
+              Book {businessName}
+            </h2>
+
+            <p className="mt-4 leading-7 text-slate-600">
+              Submit your booking request and the team will review the event
+              details, requested date, location, and talent needs.
+            </p>
+
+            <div className="mt-6 grid gap-4">
+              <div className="rounded-2xl bg-slate-100 p-5">
+                <p className="text-xs font-black uppercase tracking-widest text-red-700">
+                  Phone
+                </p>
+
+                <a
+                  href={`tel:${phone.replace(/\D/g, "")}`}
+                  className="mt-2 block text-lg font-black text-slate-950 hover:text-red-700"
+                >
+                  {phone}
+                </a>
+              </div>
+
+              <div className="rounded-2xl bg-slate-100 p-5">
+                <p className="text-xs font-black uppercase tracking-widest text-red-700">
+                  Email
+                </p>
+
+                <a
+                  href={`mailto:${email}`}
+                  className="mt-2 block text-lg font-black text-slate-950 hover:text-red-700"
+                >
+                  {email}
+                </a>
+              </div>
+            </div>
           </div>
         </aside>
 
@@ -312,7 +383,7 @@ export default function BookModel() {
           </button>
 
           <p className="mt-4 text-center text-sm text-slate-500">
-            The QueensMen team will review your request and follow up.
+            {businessName} will review your request and follow up.
           </p>
         </form>
       </section>

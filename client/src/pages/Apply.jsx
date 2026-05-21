@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import API from "../api/api";
+
 export default function Apply() {
   const [formData, setFormData] = useState({
     fullName: "",
@@ -15,6 +16,33 @@ export default function Apply() {
 const [loading, setLoading] = useState(false);
 const [error, setError] = useState("");
 const [success, setSuccess] = useState("");
+const [settings, setSettings] = useState(null);
+
+useEffect(() => {
+  let ignore = false;
+
+  const fetchSettings = async () => {
+    try {
+      const { data } = await API.get("/api/settings");
+
+      if (!ignore) {
+        setSettings(data.settings || null);
+      }
+    } catch (error) {
+      console.error("Fetch apply settings error:", error);
+
+      if (!ignore) {
+        setSettings(null);
+      }
+    }
+  };
+
+  fetchSettings();
+
+  return () => {
+    ignore = true;
+  };
+}, []);
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -58,6 +86,10 @@ const handleSubmit = async (e) => {
     setLoading(false);
   }
 };
+const businessName = settings?.businessName || "The QueensMen";
+const phone = settings?.phone || "(704) 555-1234";
+const email = settings?.email || "info@thequeensmen.com";
+
   return (
     <main className="bg-black text-white">
       {/* HEADER */}
@@ -106,6 +138,48 @@ const handleSubmit = async (e) => {
               <p className="mt-2 text-sm leading-6">
                 Confidence, creativity, and the ability to stand out.
               </p>
+            </div>
+          </div>
+          <div className="rounded-3xl border border-red-900/40 bg-white p-6 text-black shadow-2xl">
+            <p className="font-bold uppercase tracking-[0.25em] text-red-700">
+              Application Info
+            </p>
+
+            <h2 className="mt-3 text-3xl font-black text-slate-950">
+              Apply to {businessName}
+            </h2>
+
+            <p className="mt-4 leading-7 text-slate-600">
+              Submit your application and the team will review your information,
+              experience, photos, and availability.
+            </p>
+
+            <div className="mt-6 grid gap-4">
+              <div className="rounded-2xl bg-slate-100 p-5">
+                <p className="text-xs font-black uppercase tracking-widest text-red-700">
+                  Questions?
+                </p>
+
+                <a
+                  href={`mailto:${email}`}
+                  className="mt-2 block text-lg font-black text-slate-950 hover:text-red-700"
+                >
+                  {email}
+                </a>
+              </div>
+
+              <div className="rounded-2xl bg-slate-100 p-5">
+                <p className="text-xs font-black uppercase tracking-widest text-red-700">
+                  Phone
+                </p>
+
+                <a
+                  href={`tel:${phone.replace(/\D/g, "")}`}
+                  className="mt-2 block text-lg font-black text-slate-950 hover:text-red-700"
+                >
+                  {phone}
+                </a>
+              </div>
             </div>
           </div>
         </aside>
@@ -272,7 +346,7 @@ const handleSubmit = async (e) => {
             {loading ? "Submitting..." : "Submit Application"}
           </button>
           <p className="mt-4 text-center text-sm text-slate-500">
-            Your application will be reviewed by The QueensMen team.
+            {businessName} will review your application.
           </p>
         </form>
       </section>

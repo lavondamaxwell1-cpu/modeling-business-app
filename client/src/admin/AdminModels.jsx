@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import API from "../api/api";
-
+import ImageUpload from "../components/ImageUpload";
+import AdminNavbar from "../components/AdminNavbar";
 export default function AdminModels() {
   const [models, setModels] = useState([]);
+
   const [formData, setFormData] = useState({
     name: "",
     category: "",
@@ -13,6 +15,7 @@ export default function AdminModels() {
     availability: "",
     bio: "",
     image: "",
+    portfolioImages: [],
     isFeatured: false,
     isActive: true,
   });
@@ -20,9 +23,9 @@ export default function AdminModels() {
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
     let ignore = false;
@@ -60,6 +63,22 @@ export default function AdminModels() {
     };
   }, []);
 
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      category: "",
+      location: "",
+      height: "",
+      experience: "",
+      availability: "",
+      bio: "",
+      image: "",
+      portfolioImages: [],
+      isFeatured: false,
+      isActive: true,
+    });
+  };
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -67,6 +86,55 @@ export default function AdminModels() {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+  };
+
+  const addPortfolioImage = (imageUrl) => {
+    setFormData((prev) => ({
+      ...prev,
+      portfolioImages: [...prev.portfolioImages, imageUrl],
+    }));
+  };
+
+  const removePortfolioImage = (indexToRemove) => {
+    setFormData((prev) => ({
+      ...prev,
+      portfolioImages: prev.portfolioImages.filter(
+        (_, index) => index !== indexToRemove,
+      ),
+    }));
+  };
+
+  const startEdit = (model) => {
+    setEditingId(model._id);
+
+    setFormData({
+      name: model.name || "",
+      category: model.category || "",
+      location: model.location || "",
+      height: model.height || "",
+      experience: model.experience || "",
+      availability: model.availability || "",
+      bio: model.bio || "",
+      image: model.image || "",
+      portfolioImages: model.portfolioImages || [],
+      isFeatured: model.isFeatured || false,
+      isActive: model.isActive ?? true,
+    });
+
+    setSuccess("");
+    setError("");
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    resetForm();
+    setError("");
+    setSuccess("");
   };
 
   const handleSubmitModel = async (e) => {
@@ -94,18 +162,7 @@ export default function AdminModels() {
         setSuccess("Model profile created successfully!");
       }
 
-      setFormData({
-        name: "",
-        category: "",
-        location: "",
-        height: "",
-        experience: "",
-        availability: "",
-        bio: "",
-        image: "",
-        isFeatured: false,
-        isActive: true,
-      });
+      resetForm();
     } catch (error) {
       console.error("Submit model error:", error);
 
@@ -143,52 +200,11 @@ export default function AdminModels() {
     }
   };
 
-  const startEdit = (model) => {
-    setEditingId(model._id);
 
-    setFormData({
-      name: model.name || "",
-      category: model.category || "",
-      location: model.location || "",
-      height: model.height || "",
-      experience: model.experience || "",
-      availability: model.availability || "",
-      bio: model.bio || "",
-      image: model.image || "",
-      isFeatured: model.isFeatured || false,
-      isActive: model.isActive ?? true,
-    });
+    return (
+  <>
+    <AdminNavbar />
 
-    setSuccess("");
-    setError("");
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
-
-  const cancelEdit = () => {
-    setEditingId(null);
-
-    setFormData({
-      name: "",
-      category: "",
-      location: "",
-      height: "",
-      experience: "",
-      availability: "",
-      bio: "",
-      image: "",
-      isFeatured: false,
-      isActive: true,
-    });
-
-    setError("");
-    setSuccess("");
-  };
-
-  return (
     <main className="min-h-screen bg-black px-6 py-16 text-white">
       <div className="mx-auto max-w-7xl">
         <div className="mb-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
@@ -209,7 +225,7 @@ export default function AdminModels() {
             </h1>
 
             <p className="mt-4 text-slate-300">
-              Add real QueensMen model profiles for the public Models page.
+              Add, edit, feature, and manage QueensMen model profiles.
             </p>
           </div>
 
@@ -219,7 +235,7 @@ export default function AdminModels() {
         </div>
 
         <section className="grid gap-10 lg:grid-cols-[1fr_1.3fr]">
-          {/* CREATE FORM */}
+          {/* FORM */}
           <form
             onSubmit={handleSubmitModel}
             className="rounded-3xl border border-red-900/40 bg-white p-6 text-black shadow-2xl"
@@ -229,7 +245,7 @@ export default function AdminModels() {
             </h2>
 
             <p className="mt-2 text-sm text-slate-600">
-              For now, use an image URL. Later we’ll add real photo uploads.
+              Upload a main image and optional portfolio photos for each model.
             </p>
 
             <div className="mt-6 grid gap-4">
@@ -322,18 +338,84 @@ export default function AdminModels() {
                 />
               </div>
 
-              <div>
-                <label className="mb-2 block text-sm font-bold text-slate-700">
-                  Image URL
-                </label>
-                <input
-                  type="url"
-                  name="image"
-                  value={formData.image}
-                  onChange={handleChange}
-                  className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-red-700"
-                  placeholder="https://..."
+              {/* MAIN IMAGE */}
+              <div className="grid gap-4">
+                <ImageUpload
+                  label="Upload Main Model Image"
+                  onUpload={(imageUrl) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      image: imageUrl,
+                    }))
+                  }
                 />
+
+                <div>
+                  <label className="mb-2 block text-sm font-bold text-slate-700">
+                    Main Image URL
+                  </label>
+                  <input
+                    type="url"
+                    name="image"
+                    value={formData.image}
+                    onChange={handleChange}
+                    className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-red-700"
+                    placeholder="https://..."
+                  />
+                </div>
+
+                {formData.image && (
+                  <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+                    <img
+                      src={formData.image}
+                      alt="Model preview"
+                      className="h-72 w-full object-contain bg-slate-100"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* PORTFOLIO IMAGES */}
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-sm font-black uppercase tracking-widest text-red-700">
+                  Portfolio Images
+                </p>
+
+                <p className="mt-1 text-sm text-slate-600">
+                  Upload extra photos for this model’s detail page.
+                </p>
+
+                <div className="mt-4">
+                  <ImageUpload
+                    label="Upload Portfolio Image"
+                    onUpload={addPortfolioImage}
+                  />
+                </div>
+
+                {formData.portfolioImages.length > 0 && (
+                  <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                    {formData.portfolioImages.map((imageUrl, index) => (
+                      <div
+                        key={`${imageUrl}-${index}`}
+                        className="overflow-hidden rounded-2xl border border-slate-200 bg-white"
+                      >
+                        <img
+                          src={imageUrl}
+                          alt={`Portfolio ${index + 1}`}
+                          className="h-52 w-full object-contain bg-slate-100"
+                        />
+
+                        <button
+                          type="button"
+                          onClick={() => removePortfolioImage(index)}
+                          className="w-full bg-red-700 px-4 py-3 text-sm font-black text-white hover:bg-red-800"
+                        >
+                          Remove Image
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div>
@@ -400,6 +482,7 @@ export default function AdminModels() {
                     ? "Update Model Profile"
                     : "Create Model Profile"}
               </button>
+
               {editingId && (
                 <button
                   type="button"
@@ -441,6 +524,7 @@ export default function AdminModels() {
                     {model.image ? (
                       <img
                         src={model.image}
+                        className="h-80 w-full object-contain bg-slate-100"
                         alt={model.name}
                         className="h-80 w-full object-cover"
                       />
@@ -468,15 +552,6 @@ export default function AdminModels() {
                             {model.category}
                           </p>
                         </div>
-
-                        <button
-                          type="button"
-                          disabled={deletingId === model._id}
-                          onClick={() => handleDelete(model._id)}
-                          className="rounded-full border border-red-700 px-5 py-3 text-sm font-black text-red-700 hover:bg-red-700 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          {deletingId === model._id ? "Deleting..." : "Delete"}
-                        </button>
 
                         <div className="flex flex-wrap gap-3">
                           <button
@@ -529,6 +604,36 @@ export default function AdminModels() {
                         </div>
                       </div>
 
+                      {model.portfolioImages &&
+                        model.portfolioImages.length > 0 && (
+                          <div className="mt-5 rounded-2xl bg-slate-100 p-4">
+                            <p className="text-xs font-black uppercase tracking-widest text-red-700">
+                              Portfolio Images
+                            </p>
+
+                            <p className="mt-2 text-sm font-bold text-slate-700">
+                              {model.portfolioImages.length} image
+                              {model.portfolioImages.length === 1
+                                ? ""
+                                : "s"}{" "}
+                              added
+                            </p>
+
+                            <div className="mt-4 grid grid-cols-3 gap-3">
+                              {model.portfolioImages
+                                .slice(0, 3)
+                                .map((imageUrl, index) => (
+                                  <img
+                                    key={`${imageUrl}-${index}`}
+                                    src={imageUrl}
+                                    alt={`${model.name} portfolio ${index + 1}`}
+                                    className="h-24 w-full rounded-xl object-cover"
+                                  />
+                                ))}
+                            </div>
+                          </div>
+                        )}
+
                       <p className="mt-5 leading-7 text-slate-700">
                         {model.bio}
                       </p>
@@ -540,6 +645,8 @@ export default function AdminModels() {
           </section>
         </section>
       </div>
-    </main>
-  );
+        </main>
+  </>
+);
+  
 }

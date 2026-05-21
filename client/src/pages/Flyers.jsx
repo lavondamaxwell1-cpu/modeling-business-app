@@ -6,6 +6,7 @@ export default function Flyers() {
   const [flyers, setFlyers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [selectedFlyer, setSelectedFlyer] = useState(null);
 
   useEffect(() => {
     let ignore = false;
@@ -200,11 +201,17 @@ export default function Flyers() {
 
                 <div className="overflow-hidden rounded-3xl border border-red-900/40 bg-white/5 shadow-2xl">
                   {featuredFlyer.image ? (
-                    <img
-                      src={featuredFlyer.image}
-                      alt={featuredFlyer.title}
-                      className="h-[420px] w-full object-cover"
-                    />
+                    <button
+                      type="button"
+                      onClick={() => setSelectedFlyer(featuredFlyer)}
+                      className="block w-full cursor-zoom-in"
+                    >
+                      <img
+                        src={featuredFlyer.image}
+                        alt={featuredFlyer.title}
+                        className="h-[420px] w-full object-contain bg-slate-100"
+                      />
+                    </button>
                   ) : (
                     <div className="flex h-[420px] items-center justify-center bg-slate-900">
                       <p className="font-bold text-slate-400">
@@ -243,11 +250,17 @@ export default function Flyers() {
                 >
                   <div className="relative overflow-hidden bg-black">
                     {flyer.image ? (
-                      <img
-                        src={flyer.image}
-                        alt={flyer.title}
-                        className="h-96 w-full object-cover transition duration-500 group-hover:scale-105"
-                      />
+                      <button
+                        type="button"
+                        onClick={() => setSelectedFlyer(flyer)}
+                        className="block w-full cursor-zoom-in"
+                      >
+                        <img
+                          src={flyer.image}
+                          alt={flyer.title}
+                          className="h-96 w-full object-contain bg-slate-100 transition duration-500 group-hover:scale-105"
+                        />
+                      </button>
                     ) : (
                       <div className="flex h-96 items-center justify-center bg-slate-900">
                         <p className="font-bold text-slate-400">
@@ -380,6 +393,36 @@ export default function Flyers() {
           </div>
         </div>
       </section>
+
+      {selectedFlyer && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 px-4 py-6">
+          <button
+            type="button"
+            onClick={() => setSelectedFlyer(null)}
+            className="absolute right-5 top-5 rounded-full bg-white px-4 py-2 text-sm font-black text-black hover:bg-red-700 hover:text-white"
+          >
+            Close
+          </button>
+
+          <div className="max-h-[90vh] w-full max-w-5xl overflow-auto rounded-3xl bg-white p-4 shadow-2xl">
+            <img
+              src={selectedFlyer.image}
+              alt={selectedFlyer.title}
+              className="mx-auto max-h-[82vh] w-full object-contain"
+            />
+
+            <div className="mt-4 text-black">
+              <h2 className="text-2xl font-black text-slate-950">
+                {selectedFlyer.title}
+              </h2>
+
+              <p className="mt-1 text-sm font-bold text-red-700">
+                {selectedFlyer.type}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

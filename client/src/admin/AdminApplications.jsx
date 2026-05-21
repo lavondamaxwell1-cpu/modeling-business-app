@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import API from "../api/api";
-
+import AdminNavbar from "../components/AdminNavbar";
 export default function AdminApplications() {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -84,6 +84,9 @@ const handleDelete = async (applicationId) => {
   }
 };
   return (
+      <>
+    <AdminNavbar />
+
     <main className="min-h-screen bg-black px-6 py-16 text-white">
       <div className="mx-auto max-w-7xl">
         <div className="mb-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
@@ -299,5 +302,7 @@ const handleDelete = async (applicationId) => {
         )}
       </div>
     </main>
+  </>
+  
   );
 }

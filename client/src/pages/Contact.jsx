@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import API from "../api/api";
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -8,9 +8,35 @@ export default function Contact() {
     subject: "",
     message: "",
   });
-const [loading, setLoading] = useState(false);
-const [error, setError] = useState("");
-const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [settings, setSettings] = useState(null);
+  useEffect(() => {
+    let ignore = false;
+
+    const fetchSettings = async () => {
+      try {
+        const { data } = await API.get("/api/settings");
+
+        if (!ignore) {
+          setSettings(data.settings || null);
+        }
+      } catch (error) {
+        console.error("Fetch contact settings error:", error);
+
+        if (!ignore) {
+          setSettings(null);
+        }
+      }
+    };
+
+    fetchSettings();
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -20,37 +46,42 @@ const [success, setSuccess] = useState("");
     }));
   };
 
- const handleSubmit = async (e) => {
-   e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-   try {
-     setLoading(true);
-     setError("");
-     setSuccess("");
+    try {
+      setLoading(true);
+      setError("");
+      setSuccess("");
 
-     await API.post("/api/contact", formData);
+      await API.post("/api/contact", formData);
 
-     setSuccess("Message sent successfully!");
+      setSuccess("Message sent successfully!");
 
-     setFormData({
-       fullName: "",
-       email: "",
-       phone: "",
-       subject: "",
-       message: "",
-     });
-   } catch (error) {
-     console.error("Contact submit error:", error);
+      setFormData({
+        fullName: "",
+        email: "",
+        phone: "",
+        subject: "",
+        message: "",
+      });
+    } catch (error) {
+      console.error("Contact submit error:", error);
 
-     setError(
-       error.response?.data?.message ||
-         "Something went wrong while sending your message.",
-     );
-   } finally {
-     setLoading(false);
-   }
- };
-
+      setError(
+        error.response?.data?.message ||
+          "Something went wrong while sending your message.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+  const businessName = settings?.businessName || "The QueensMen";
+  const phone = settings?.phone || "(704) 555-1234";
+  const email = settings?.email || "info@thequeensmen.com";
+  const instagram = settings?.instagram || "";
+  const facebook = settings?.facebook || "";
+  const tiktok = settings?.tiktok || "";
   return (
     <main className="bg-black text-white">
       {/* HEADER */}
@@ -78,64 +109,95 @@ const [success, setSuccess] = useState("");
           <h2 className="text-3xl font-black text-white">Business Info</h2>
 
           <div className="mt-8 space-y-5">
-            <div className="rounded-2xl border border-white/10 bg-black p-5">
-              <p className="text-sm font-bold uppercase tracking-widest text-red-600">
-                Phone
-              </p>
-              <a
-                href="tel:7045551234"
-                className="mt-2 block text-lg font-bold text-white hover:text-red-500"
-              >
-                (704) 555-1234
-              </a>
-            </div>
-
-            <div className="rounded-2xl border border-white/10 bg-black p-5">
-              <p className="text-sm font-bold uppercase tracking-widest text-red-600">
-                Email
-              </p>
-              <a
-                href="mailto:info@thequeensmen.com"
-                className="mt-2 block text-lg font-bold text-white hover:text-red-500"
-              >
-                info@thequeensmen.com
-              </a>
-            </div>
-
-            <div className="rounded-2xl border border-white/10 bg-black p-5">
-              <p className="text-sm font-bold uppercase tracking-widest text-red-600">
-                Social Media
+            <div className="rounded-3xl border border-red-900/40 bg-white p-6 text-black shadow-2xl">
+              <p className="font-bold uppercase tracking-[0.25em] text-red-700">
+                Contact Info
               </p>
 
-              <div className="mt-3 flex flex-wrap gap-3">
-                <a
-                  href="#"
-                  className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-white hover:border-red-700 hover:bg-red-700"
-                >
-                  Instagram
-                </a>
+              <h2 className="mt-3 text-3xl font-black text-slate-950">
+                Reach {businessName}
+              </h2>
 
-                <a
-                  href="#"
-                  className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-white hover:border-red-700 hover:bg-red-700"
-                >
-                  Facebook
-                </a>
+              <div className="mt-6 grid gap-4">
+                <div className="rounded-2xl bg-slate-100 p-5">
+                  <p className="text-xs font-black uppercase tracking-widest text-red-700">
+                    Phone
+                  </p>
 
-                <a
-                  href="#"
-                  className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-white hover:border-red-700 hover:bg-red-700"
-                >
-                  TikTok
-                </a>
+                  <a
+                    href={`tel:${phone.replace(/\D/g, "")}`}
+                    className="mt-2 block text-lg font-black text-slate-950 hover:text-red-700"
+                  >
+                    {phone}
+                  </a>
+                </div>
+
+                <div className="rounded-2xl bg-slate-100 p-5">
+                  <p className="text-xs font-black uppercase tracking-widest text-red-700">
+                    Email
+                  </p>
+
+                  <a
+                    href={`mailto:${email}`}
+                    className="mt-2 block text-lg font-black text-slate-950 hover:text-red-700"
+                  >
+                    {email}
+                  </a>
+                </div>
+
+                <div className="rounded-2xl bg-slate-100 p-5">
+                  <p className="text-xs font-black uppercase tracking-widest text-red-700">
+                    Socials
+                  </p>
+
+                  <div className="mt-3 flex flex-wrap gap-3">
+                    {instagram ? (
+                      <a
+                        href={instagram}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-full bg-black px-4 py-2 text-sm font-bold text-white hover:bg-red-700"
+                      >
+                        Instagram
+                      </a>
+                    ) : (
+                      <span className="rounded-full bg-slate-200 px-4 py-2 text-sm font-bold text-slate-500">
+                        Instagram
+                      </span>
+                    )}
+
+                    {facebook ? (
+                      <a
+                        href={facebook}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-full bg-black px-4 py-2 text-sm font-bold text-white hover:bg-red-700"
+                      >
+                        Facebook
+                      </a>
+                    ) : (
+                      <span className="rounded-full bg-slate-200 px-4 py-2 text-sm font-bold text-slate-500">
+                        Facebook
+                      </span>
+                    )}
+
+                    {tiktok ? (
+                      <a
+                        href={tiktok}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-full bg-black px-4 py-2 text-sm font-bold text-white hover:bg-red-700"
+                      >
+                        TikTok
+                      </a>
+                    ) : (
+                      <span className="rounded-full bg-slate-200 px-4 py-2 text-sm font-bold text-slate-500">
+                        TikTok
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-
-            <div className="rounded-2xl border-l-4 border-red-700 bg-black p-5">
-              <p className="text-sm leading-6 text-slate-300">
-                Replace the sample phone, email, and social links with her real
-                business contact information when she sends it to you.
-              </p>
             </div>
           </div>
         </aside>
